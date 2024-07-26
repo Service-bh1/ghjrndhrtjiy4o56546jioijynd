@@ -1,14 +1,20 @@
-# Gunakan image PHP resmi dengan Apache
-FROM php:7.4-apache
+# Gunakan image PHP-FPM resmi
+FROM php:7.4-fpm
 
-# Salin semua file dari direktori kerja lokal ke direktori root Apache
+# Install Nginx
+RUN apt-get update && apt-get install -y nginx
+
+# Salin file konfigurasi Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Salin semua file dari direktori kerja lokal ke direktori root Nginx
 COPY . /var/www/html/
 
-# Aktifkan modul rewrite Apache
-RUN a2enmod rewrite
+# Set work directory
+WORKDIR /var/www/html/
 
 # Expose port 80 untuk akses web
 EXPOSE 80
 
-# Jalankan Apache di foreground
-CMD ["apache2-foreground"]
+# Jalankan Nginx dan PHP-FPM
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
